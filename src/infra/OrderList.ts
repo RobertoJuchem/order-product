@@ -1,13 +1,18 @@
 import { IOrder } from "../interfaces/order"
+import { IProduct } from "../interfaces/product"
+import { Order } from "../orders/order"
 import { TaxProduct } from "../products/TaxProduct"
 import { productDBInstance } from './instance'
 
 export class OrderDB {
     orderList: IOrder[] = []
 
-    addOrder(newOrder: IOrder){
+    addOrder(product: IProduct[]){
+        const newOrder = new Order(product)
         this.orderList.push(newOrder)
+        return newOrder
     }
+
     addProductOnOrder(productId: string, orderId: string){
         const [newProduct] = productDBInstance.getProductById(productId)
         for(let order of this.orderList){
@@ -16,17 +21,20 @@ export class OrderDB {
             }
         }
     }
+
     deleteOrder(orderId: string){
         this.orderList = this.orderList.filter((order) => order.id !== orderId)
+        return this.orderList
     }
     removeOrderItem(orderId: string, productId: string){
         for (let order of this.orderList){
             if(order.id === orderId){
-               order.products = order.products.filter(({id}) => id === productId)
+               order.products = order.products.filter((product) => product.id !== productId)
                return order
             }
         }
     }
+
     updateOrder(orderId: string, updatedOrder: IOrder){
         this.orderList.filter(order => {
             if(order.id === orderId){
@@ -34,21 +42,24 @@ export class OrderDB {
             }
         })
     }
+
     getOrderById(orderId: string): IOrder[]{
         return this.orderList.filter(({id}) =>{ id === orderId})
     }
-    getTotal(orderId: string, productId: string){
+
+    getSubTotal(orderId: string){
         let fullPriceOfProducts = 0
         for(let order of this.orderList){
             if(order.id === orderId){
                 for(let product of order.products){
                     fullPriceOfProducts += product.price
                 }
-                return fullPriceOfProducts
             }
         }
+        return fullPriceOfProducts
     }
-    getValuesOfFees(orderId: string){
+
+    getValuesOfTax(orderId: string){
         let fullValuesFees = 0
         for(let order of this.orderList){
             if(order.id === orderId){
@@ -56,17 +67,13 @@ export class OrderDB {
                     if(product instanceof TaxProduct){
                         fullValuesFees += product.price * product.getTax()
                     }
-                    return fullValuesFees
                 }
             }
         }
+        return fullValuesFees
     }
-    getSubTotal(){
-        
+
+    getTotal(orderId: string){
+        return this.getSubTotal(orderId) + this.getValuesOfTax(orderId)
     }
 }
-
-//getTotal
-//gettax //getValuesOfFees
-//getSubTotal
-//verificar se é instanceof

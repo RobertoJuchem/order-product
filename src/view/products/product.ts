@@ -6,6 +6,7 @@ import { Alcoholic } from '../../products/alcoholic'
 import { Water } from '../../products/Water'
 import { Factory } from '../../category'
 import { IProduct } from '../../interfaces/product'
+
 const route = Router()
 
 route.get('/products', (_: Request, res: Response) => {
@@ -53,7 +54,6 @@ route.patch('/product/id=:id', (req: Request, res: Response) => {
     const newProduct: IProduct = factoryObj.getObject(description, price, category)
     const updatedList = productDBInstance.updateProduct(id, newProduct)
     res.json(updatedList)
-
 })
 
 route.delete('product/id=:id', (req:Request, res:Response) => {
@@ -61,11 +61,11 @@ route.delete('product/id=:id', (req:Request, res:Response) => {
     return res.json(productDBInstance.deleteProduct(currentId))
 })
 
-route.patch('/product/beer/id=:id', (req: Request, res: Response) => {
-    const { id } = req.params
-    const {description, price} = req.body
-    const newBeer = new Beer(description, price)
-    const updatedList = productDBInstance.updateProduct(id, newBeer)
-    res.json(updatedList)
-})
+// route.patch('/product/beer/id=:id', (req: Request, res: Response) => {
+//     const { id } = req.params
+//     const {description, price} = req.body
+//     const newBeer = new Beer(description, price)
+//     const updatedList = productDBInstance.updateProduct(id, newBeer)
+//     res.json(updatedList)
+// })
 export { route }
